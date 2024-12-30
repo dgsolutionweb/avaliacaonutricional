@@ -1,4 +1,3 @@
-import React from 'react';
 import { NutritionResult } from '../types';
 
 interface ResultsProps {
