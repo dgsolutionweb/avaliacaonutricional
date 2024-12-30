@@ -1,10 +1,44 @@
+import { useState, useEffect } from 'react';
 import { NutritionResult } from '../types';
+import { generateDietPlan } from '../services/gemini';
 
 interface ResultsProps {
   result: NutritionResult;
+  userData: any;
+  onPlanGenerated: (plan: string) => void;
 }
 
-export function Results({ result }: ResultsProps) {
+export function Results({ result, userData, onPlanGenerated }: ResultsProps) {
+  const [isGenerating, setIsGenerating] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [hasGenerated, setHasGenerated] = useState(false);
+
+  const generatePlan = async () => {
+    if (hasGenerated) return;
+    
+    try {
+      setIsGenerating(true);
+      setError(null);
+      const plan = await generateDietPlan(userData);
+      onPlanGenerated(plan);
+      setHasGenerated(true);
+    } catch (err) {
+      console.error('Erro ao gerar plano:', err);
+      setError('Ocorreu um erro ao gerar o plano alimentar. Por favor, tente novamente.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  useEffect(() => {
+    generatePlan();
+  }, []);
+
+  const handleRetry = () => {
+    setHasGenerated(false);
+    generatePlan();
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold text-center text-gray-800">
@@ -36,9 +70,30 @@ export function Results({ result }: ResultsProps) {
           </div>
         </div>
       </div>
-      <p className="text-center text-xl text-gray-600 animate-pulse">
-        Gerando seu plano alimentar personalizado...
-      </p>
+
+      {isGenerating ? (
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="text-xl text-gray-600">
+            Gerando seu plano alimentar personalizado...
+          </p>
+          <p className="text-sm text-gray-500">
+            Isso pode levar alguns segundos
+          </p>
+        </div>
+      ) : error ? (
+        <div className="text-center space-y-4">
+          <div className="bg-red-50 p-4 rounded-lg">
+            <p className="text-red-800 mb-2">{error}</p>
+            <button
+              onClick={handleRetry}
+              className="text-blue-600 hover:text-blue-700 underline font-medium"
+            >
+              Tentar novamente
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
