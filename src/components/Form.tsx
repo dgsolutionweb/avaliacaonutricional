@@ -1,4 +1,3 @@
-import React from 'react';
 import { useForm } from 'react-hook-form';
 import { UserData } from '../types';
 
@@ -63,8 +62,7 @@ const foodOptions = {
 };
 
 export function Form({ onSubmit }: FormProps) {
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<UserData>();
-  const watchGoal = watch('goal');
+  const { register, handleSubmit, formState: { errors } } = useForm<UserData>();
 
   return (
     <div id="avaliacao" className="bg-white p-8 rounded-xl shadow-2xl">

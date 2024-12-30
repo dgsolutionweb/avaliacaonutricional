@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface InstagramModalProps {
   isOpen: boolean;
   onClose: () => void;
